@@ -24,15 +24,20 @@ const run = async () => {
     const bookCollection = db.collection("my-book");
     mongoose.connect(uri);
 
-    app.get("/products", async (req, res) => {
+    app.get("/", async (req, res) => {
       const limit = 10;
-      const products = await bookCollection.find().limit(limit).toArray();
-      res.send({ status: true, data: products });
+      const books = await bookCollection.find().limit(limit).toArray();
+      res.send({ status: true, data: books });
+    });
+
+    app.get("/allbooks", async (req, res) => {
+      const books = await bookCollection.find().limit().toArray();
+      res.send({ status: true, data: books });
     });
     app.post("/product", async (req, res) => {
-      const product = req.body;
+      const book = req.body;
 
-      const result = await bookCollection.insertOne(product);
+      const result = await bookCollection.insertOne(book);
 
       res.send(result);
     });
@@ -40,47 +45,40 @@ const run = async () => {
     app.get("/product/:id", async (req, res) => {
       try {
         const id = req.params.id;
-        const result = await bookCollection.findOne({
+        const book = await bookCollection.findOne({
           _id: new ObjectId(id),
         });
-        console.log(result);
-        res.send(result);
+        res.send(book);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     });
 
     app.delete("/product/:id", async (req, res) => {
       const id = req.params.id;
 
-      const result = await bookCollection.deleteOne({
+      const book = await bookCollection.deleteOne({
         _id: new ObjectId(id),
       });
-      console.log(result);
-      res.send(result);
+      // console.log(result);
+      res.send(book);
     });
 
     app.post("/comment/:id", async (req, res) => {
       const productId = req.params.id;
       const comment = req.body.comment;
-
-      console.log(productId);
-      console.log(comment);
-
       const result = await bookCollection.updateOne(
         { _id: ObjectId(productId) },
         { $push: { comments: comment } }
       );
 
-      console.log(result);
-
       if (result.modifiedCount !== 1) {
-        console.error("Product not found or comment not added");
+        // console.error("Product not found or comment not added");
         res.json({ error: "Product not found or comment not added" });
         return;
       }
 
-      console.log("Comment added successfully");
+      // console.log("Comment added successfully");
       res.json({ message: "Comment added successfully" });
     });
 
@@ -117,12 +115,6 @@ const run = async () => {
       }
 
       res.send({ status: false });
-    });
-
-    app.get("/", async (req, res) => {
-      const limit = 10;
-      const products = await bookCollection.find().limit(limit).toArray();
-      res.send({ status: true, data: products });
     });
   } finally {
   }
