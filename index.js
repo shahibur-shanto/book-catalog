@@ -124,8 +124,10 @@ const run = async () => {
 
 run().catch((err) => console.log(err));
 
-app.get("/", (req, res) => {
-  res.send("Hello mushkil");
+app.get("/", async (req, res) => {
+  const limit = 10;
+  const products = await bookCollection.find().limit(limit).toArray();
+  res.send({ status: true, data: products });
 });
 
 app.listen(port, () => {
