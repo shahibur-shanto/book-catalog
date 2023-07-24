@@ -31,7 +31,7 @@ const run = async () => {
     });
 
     app.get("/allbooks", async (req, res) => {
-      const books = await bookCollection.find({});
+      const books = await bookCollection.find().toArray();
       res.send({ status: true, data: books });
     });
     app.post("/product", async (req, res) => {
