@@ -25,7 +25,7 @@ const run = async () => {
     mongoose.connect(uri);
 
     app.get("/", async (req, res) => {
-      const limit = 9;
+      const limit = 10;
       const books = await bookCollection.find().limit(limit).toArray();
       res.send({ status: true, data: books });
     });
