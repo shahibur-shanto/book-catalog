@@ -30,6 +30,21 @@ const run = async () => {
       res.send({ status: true, data: books });
     });
 
+    app.get("/search/:searchText", async (req, res) => {
+      const searchString = req.params.searchText;
+      // console.log(searchString);
+      const books = await bookCollection
+        .find({
+          $or: [
+            { title: { $regex: searchString, $options: "i" } },
+            { genre: { $regex: searchString, $options: "i" } },
+            { author: { $regex: searchString, $options: "i" } },
+          ],
+        })
+        .toArray();
+      res.send({ status: true, data: books });
+    });
+
     app.get("/allbooks", async (req, res) => {
       const books = await bookCollection.find().toArray();
       res.send({ status: true, data: books });
