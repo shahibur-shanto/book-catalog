@@ -32,7 +32,6 @@ const run = async () => {
 
     app.get("/search/:searchText", async (req, res) => {
       const searchString = req.params.searchText;
-      // console.log(searchString);
       const books = await bookCollection
         .find({
           $or: [
@@ -46,6 +45,7 @@ const run = async () => {
     });
 
     app.get("/allbooks", async (req, res) => {
+      // console.log("allbooks");
       const books = await bookCollection.find().toArray();
       res.send({ status: true, data: books });
     });
@@ -57,7 +57,7 @@ const run = async () => {
       res.send(result);
     });
 
-    app.get("/product/:id", async (req, res) => {
+    app.get("/book-details/:id", async (req, res) => {
       try {
         const id = req.params.id;
         const book = await bookCollection.findOne({
