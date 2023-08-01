@@ -57,6 +57,20 @@ const run = async () => {
       res.send(result);
     });
 
+    app.put("/book-edit/:id", async (req, res) => {
+      const updateBook = req.body;
+      console.log(updateBook);
+      const BookId = req.params.id;
+      const result = await bookCollection.updateOne(
+        { _id: new ObjectId(BookId) },
+        {
+          $set: updateBook,
+        }
+      );
+
+      res.send(result);
+    });
+
     app.get("/book-details/:id", async (req, res) => {
       try {
         const id = req.params.id;
