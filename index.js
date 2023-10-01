@@ -49,7 +49,7 @@ const run = async () => {
       const books = await bookCollection.find().toArray();
       res.send({ status: true, data: books });
     });
-    app.post("/product", async (req, res) => {
+    app.post("/create-book", async (req, res) => {
       const book = req.body;
 
       const result = await bookCollection.insertOne(book);
@@ -65,10 +65,34 @@ const run = async () => {
         { _id: new ObjectId(BookId) },
         {
           $set: updateBook,
+        },
+        {
+          new: true,
         }
       );
 
       res.send(result);
+    });
+
+    app.put("/review/:id", async (req, res) => {
+      const BookId = req.params.id;
+      const reviews = req.body.reviews;
+
+      const result = await bookCollection.updateOne(
+        { _id: new ObjectId(BookId) },
+        {
+          $push: { reviews },
+        }
+      );
+
+      if (result.modifiedCount !== 1) {
+        // console.error("Product not found or comment not added");
+        res.json({ error: "Product not found or comment not added" });
+        return;
+      }
+
+      // console.log("Comment added successfully");
+      res.json({ message: "Review added successfully" });
     });
 
     app.get("/book-details/:id", async (req, res) => {
@@ -83,39 +107,32 @@ const run = async () => {
       }
     });
 
-    app.delete("/product/:id", async (req, res) => {
+    app.delete("/book/:id", async (req, res) => {
       const id = req.params.id;
-
+      console.log(id);
+      if (!ObjectId.isValid(id)) {
+        console.log("Invalid book ID format");
+        res.status(400).json({ error: "Invalid book ID format" });
+        return;
+      }
       const book = await bookCollection.deleteOne({
         _id: new ObjectId(id),
       });
-      // console.log(result);
-      res.send(book);
-    });
 
-    app.post("/comment/:id", async (req, res) => {
-      const productId = req.params.id;
-      const comment = req.body.comment;
-      const result = await bookCollection.updateOne(
-        { _id: ObjectId(productId) },
-        { $push: { comments: comment } }
-      );
-
-      if (result.modifiedCount !== 1) {
-        // console.error("Product not found or comment not added");
-        res.json({ error: "Product not found or comment not added" });
-        return;
+      if (book.deletedCount === 0) {
+        console.log("book not deleted successfully");
+        res.status(404).json({ error: "Book not found" });
+      } else {
+        console.log("book deleted successfully");
+        res.json({ message: "Book deleted successfully" });
       }
-
-      // console.log("Comment added successfully");
-      res.json({ message: "Comment added successfully" });
     });
 
-    app.get("/comment/:id", async (req, res) => {
-      const productId = req.params.id;
+    app.get("/review/:id", async (req, res) => {
+      const id = req.params.id;
 
       const result = await bookCollection.findOne(
-        { _id: ObjectId(productId) },
+        { _id: ObjectId(id) },
         { projection: { _id: 0, comments: 1 } }
       );
 
